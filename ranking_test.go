@@ -17,7 +17,7 @@ func TestRanking(t *testing.T) {
 	for k, v := range nums {
 		r.Set(k, v) // 随机设置，不按顺序插入
 	}
-	fmt.Printf("write useTime:%.2f\n", time.Now().Sub(startTime).Seconds())
+	fmt.Printf("write useTime:%.2fs\n", time.Now().Sub(startTime).Seconds())
 
 	startTime = time.Now()
 	for k, v := range nums {
@@ -25,5 +25,5 @@ func TestRanking(t *testing.T) {
 			t.Errorf("ranking fail %s should %d, but %d", k, int(v)+1, rank)
 		}
 	}
-	fmt.Printf("read useTime:%.2f\n", time.Now().Sub(startTime).Seconds())
+	fmt.Printf("read useTime:%.2fs\n", time.Now().Sub(startTime).Seconds())
 }
