@@ -5,7 +5,6 @@ import "fmt"
 type node struct {
 	key    string
 	source float64
-	tree   *tree
 }
 
 type tree struct {
@@ -17,8 +16,7 @@ type tree struct {
 
 func add(t *tree, node *node) *tree {
 	if t == nil {
-		t = &tree{node: node}
-		node.tree = t
+		return &tree{node: node, size: 1}
 	} else if node.source <= t.node.source {
 		t.left = add(t.left, node)
 	} else {

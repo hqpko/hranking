@@ -8,7 +8,7 @@ import (
 
 func TestRanking(t *testing.T) {
 	r := NewRanking()
-	count := 10000 * 1000
+	count := 10000 * 100
 	startTime := time.Now()
 	nums := map[string]float64{}
 	for i := 0; i < count; i++ {
