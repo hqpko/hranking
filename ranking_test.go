@@ -33,6 +33,19 @@ func TestRanking(t *testing.T) {
 	fmt.Printf("read useTime:%.2fs\n", time.Now().Sub(startTime).Seconds())
 }
 
+func TestRanking_Set(t *testing.T) {
+	r := NewRanking()
+	r.Set("0", 0)
+	r.Set("1", 1)
+	r.Set("2", 2)
+
+	// reset, 得分相同的情况下，最新更新的 key 排名更靠前
+	r.Set("1", 2)
+	if r.Get("1") != 1 {
+		t.Errorf("ranking set fail")
+	}
+}
+
 func createNums(count int) map[string]float64 {
 	nums := map[string]float64{}
 	for i := 0; i < count; i++ {
