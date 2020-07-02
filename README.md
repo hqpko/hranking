@@ -4,6 +4,7 @@
 
 > 基本规则是：由大到小排序，且得分相同的情况下，最新更新的 key 排名更靠前
 
+#### 简单示例
 ```go
 package main
 
@@ -11,11 +12,11 @@ import (
 	"fmt"
 	"time"
 
-	hrank "github.com/hqpko/hranking"
+	hranking "github.com/hqpko/hranking"
 )
 
 func main() {
-	r := hrank.NewRanking()
+	r := hranking.NewRanking()
 	r.Set("user01", 100)
 	r.Get("user01") // 排名 1
 
@@ -41,6 +42,47 @@ func createNums(count int) map[string]float64 {
 		nums[fmt.Sprintf("t%d", i)] = float64(i)
 	}
 	return nums
+}
+
+```
+
+#### 功能示例
+```go
+package main
+
+import (
+	"fmt"
+	"strconv"
+
+	hranking "github.com/hqpko/hranking"
+)
+
+func main() {
+	r := hranking.NewRanking()
+	for i := 0; i < 10; i++ {
+		r.Set(strconv.Itoa(i), float64(i))
+	}
+
+	fmt.Println(r.Len()) // 10
+
+	// key 排行位置
+	fmt.Println(r.Get("8")) // 2
+
+	// 第 N 名
+	key, score := r.GetN(3)
+	fmt.Println(key, score) // 7 7
+
+	// 区间
+	keys, scores := r.GetRange(4, 8)
+	fmt.Println(keys, scores) // [6 5 4 3 2] [6 5 4 3 2]
+
+	// Copy
+	r2 := r.Copy()
+
+	// Walk
+	r2.Walk(func(index int, key string, score float64) {
+		fmt.Printf("walk index:%d, key:%s, score:%.0f\n", index, key, score) // 9->0
+	})
 }
 
 ```
