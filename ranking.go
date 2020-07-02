@@ -16,7 +16,10 @@ func (r *Ranking) Set(key string, source float64) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	if n := r.nodeMap[key]; n != nil {
-		del(r.tree, n)
+		if n.source == source {
+			return
+		}
+		r.tree = del(r.tree, n)
 		n.source = source
 		r.tree = add(r.tree, n)
 	} else {
