@@ -35,23 +35,32 @@ func del(t *tree, node *node) *tree {
 			return t.right
 		} else if t.right == nil {
 			return t.left
+		} else {
+			first := getFirst(t.right)
+			t.node, first.node = first.node, t.node
+			t.right = del(t.right, node)
 		}
-	} else if node.source <= t.node.source {
+	} else if node.source < t.node.source { // 注意此处是 < 而不是 <=，由于在插入时使用的是 <= 导致相同 source 的节点在右边，此处需要使用 < 来检查右方数据
 		t.left = del(t.left, node)
+		t = maintain(t, true)
 	} else {
 		t.right = del(t.right, node)
+		t = maintain(t, false)
 	}
-	t = maintain(t, false)
-	t.size = size(t.left) + size(t.right) + 1
+	t.size--
 	return t
 }
 
 func rank(t *tree, node *node) int {
+	if t == nil {
+		return 0
+	}
 	if node.key == t.node.key {
 		return size(t.left) + 1
 	} else if node.source <= t.node.source {
-		rank := rank(t.left, node)
-		return rank
+		return rank(t.left, node)
+	} else if t.right == nil {
+		return size(t.left) + 1
 	} else {
 		return size(t.left) + rank(t.right, node) + 1
 	}
@@ -106,6 +115,13 @@ func rotateLeft(t *tree) *tree {
 	} else {
 		return nil
 	}
+}
+
+func getFirst(t *tree) *tree {
+	for t.left != nil {
+		t = t.left
+	}
+	return t
 }
 
 func size(t *tree) int {
