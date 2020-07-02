@@ -168,6 +168,19 @@ func walk(t *tree, index int, handler func(index int, key string, score float64)
 	return walk(t.left, index, handler)
 }
 
+func getN(t *tree, n int) *tree {
+	if t == nil || n <= 0 || n > t.size {
+		return nil
+	}
+	if rSize := size(t.right); n == rSize+1 {
+		return t
+	} else if n > rSize+1 {
+		return getN(t.left, n-rSize-1)
+	} else {
+		return getN(t.right, n)
+	}
+}
+
 func (t *tree) print() {
 	t.debug("")
 }

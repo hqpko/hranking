@@ -64,11 +64,27 @@ func TestRanking_Copy_Walk(t *testing.T) {
 	})
 }
 
+func TestRanking_GetN(t *testing.T) {
+	r := NewRanking()
+	count := 10
+	nums := createNums(count)
+	for k, v := range nums {
+		r.Set(k, v)
+	}
+
+	for i := 1; i < count+1; i++ {
+		k, v := getName(count-i), float64(count-i)
+		if key, score := r.GetN(i); key != k && score != v {
+			t.Errorf("ranking getn fail, should be %s,%.0f, but %s,%.0f", k, v, key, score)
+		}
+	}
+}
+
 // map[i]i, ex: 1:1, 2:2
 func createNums(count int) map[string]float64 {
 	nums := map[string]float64{}
 	for i := 0; i < count; i++ {
-		nums[strconv.Itoa(i)] = float64(i)
+		nums[getName(i)] = float64(i)
 	}
 	return nums
 }
@@ -76,4 +92,8 @@ func createNums(count int) map[string]float64 {
 func k2v(k string) int {
 	i, _ := strconv.Atoi(k)
 	return i
+}
+
+func getName(i int) string {
+	return strconv.Itoa(i)
 }

@@ -43,6 +43,17 @@ func (r *Ranking) Get(key string) int {
 	return 0
 }
 
+// 获取排名为 n 的 key,score
+// n>0 && n<=ranking.len，否则返回 "",0
+func (r *Ranking) GetN(n int) (string, float64) {
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	if t := getN(r.tree, n); t != nil {
+		return t.node.key, t.node.score
+	}
+	return "", 0
+}
+
 func (r *Ranking) Len() int {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
