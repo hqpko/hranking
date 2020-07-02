@@ -172,13 +172,34 @@ func getN(t *tree, n int) *tree {
 	if t == nil || n <= 0 || n > t.size {
 		return nil
 	}
-	if rSize := size(t.right); n == rSize+1 {
+	if tIndex := size(t.right) + 1; n == tIndex {
 		return t
-	} else if n > rSize+1 {
-		return getN(t.left, n-rSize-1)
+	} else if n > tIndex {
+		return getN(t.left, n-tIndex)
 	} else {
 		return getN(t.right, n)
 	}
+}
+
+// from<to [from,to)
+func getRange(t *tree, from, to int, keys []string, scores []float64) ([]string, []float64) {
+	if t != nil && from < to && from <= t.size {
+		if tIndex := size(t.right) + 1; from > tIndex {
+			keys, scores = getRange(t.left, from-tIndex, to-tIndex, keys, scores)
+		} else if from < tIndex {
+			keys, scores = getRange(t.right, from, to, keys, scores)
+			if to > tIndex {
+				keys, scores = append(keys, t.node.key), append(scores, t.node.score)
+				keys, scores = getRange(t.left, 1, to-tIndex, keys, scores)
+			}
+		} else {
+			keys, scores = append(keys, t.node.key), append(scores, t.node.score)
+			if to > tIndex {
+				keys, scores = getRange(t.left, 1, to-tIndex, keys, scores)
+			}
+		}
+	}
+	return keys, scores
 }
 
 func (t *tree) print() {

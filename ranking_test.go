@@ -8,10 +8,10 @@ import (
 )
 
 func TestRanking(t *testing.T) {
-	r := NewRanking()
 	count := 100 * 10000
-	startTime := time.Now()
+	r := NewRanking()
 	nums := createNums(count)
+	startTime := time.Now()
 	for k, v := range nums {
 		r.Set(k, v) // 乱序插入
 	}
@@ -47,12 +47,8 @@ func TestRanking_Set(t *testing.T) {
 }
 
 func TestRanking_Copy_Walk(t *testing.T) {
-	r := NewRanking()
-	count := 10 * 10000
-	nums := createNums(count)
-	for k, v := range nums {
-		r.Set(k, v)
-	}
+	count := 10
+	r := createRanking(count)
 
 	r2 := r.Copy()
 	r2.Walk(func(index int, key string, score float64) {
@@ -65,12 +61,8 @@ func TestRanking_Copy_Walk(t *testing.T) {
 }
 
 func TestRanking_GetN(t *testing.T) {
-	r := NewRanking()
 	count := 10
-	nums := createNums(count)
-	for k, v := range nums {
-		r.Set(k, v)
-	}
+	r := createRanking(count)
 
 	for i := 1; i < count+1; i++ {
 		k, v := getName(count-i), float64(count-i)
@@ -78,6 +70,64 @@ func TestRanking_GetN(t *testing.T) {
 			t.Errorf("ranking getn fail, should be %s,%.0f, but %s,%.0f", k, v, key, score)
 		}
 	}
+}
+
+func TestRanking_GetRange(t *testing.T) {
+	count := 10
+	r := createRanking(count)
+
+	ranges := []struct {
+		from int
+		to   int
+	}{
+		{1, 10},
+		{1, 3},
+		{2, 5},
+		{2, 8},
+		{5, 8},
+		{6, 9},
+		{1, 15},
+		{-1, 8},
+		{-1, 15},
+		{5, 5},
+	}
+
+	for _, rang := range ranges {
+		from, to := rang.from, rang.to
+		keys, scores := r.GetRange(from, to)
+
+		// 获取实际长度 //
+		if to > r.Len()+1 {
+			to = r.Len() + 1
+		}
+		if from < 1 {
+			from = 1
+		}
+		if to <= from {
+			to = from + 1
+		}
+		size := to - from
+		// /////////// //
+		if len(keys) != size {
+			t.Errorf("ranking get range fail, no enough data, should %d, but %d", size, len(keys))
+		}
+		for i, v := range keys {
+			key, score := getName(count-from), float64(count-from)
+			if v != key || scores[i] != score {
+				t.Errorf("ranking get rank fail, should be %s,%.0f, but %s,%.0f", key, score, v, scores[i])
+			}
+			from++
+		}
+	}
+}
+
+func createRanking(count int) *Ranking {
+	r := NewRanking()
+	nums := createNums(count)
+	for k, v := range nums {
+		r.Set(k, v) // 乱序插入
+	}
+	return r
 }
 
 // map[i]i, ex: 1:1, 2:2
