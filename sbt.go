@@ -17,7 +17,7 @@ type tree struct {
 func add(t *tree, node *node) *tree {
 	if t == nil {
 		return &tree{node: node, size: 1}
-	} else if node.source <= t.node.source {
+	} else if node.source < t.node.source {
 		t.left = add(t.left, node)
 	} else {
 		t.right = add(t.right, node)
@@ -40,7 +40,7 @@ func del(t *tree, node *node) *tree {
 			t.node, first.node = first.node, t.node
 			t.right = del(t.right, node)
 		}
-	} else if node.source < t.node.source { // 注意此处是 < 而不是 <=，由于在插入时使用的是 <= 导致相同 source 的节点在右边，此处需要使用 < 来检查右方数据
+	} else if node.source <= t.node.source { // 注意此处是 <= 而不是 <，由于在插入时使用的是 < 导致相同 source 的节点在左边，此处需要使用 <= 来检查左方数据
 		t.left = del(t.left, node)
 		t = maintain(t, true)
 	} else {
@@ -58,7 +58,7 @@ func rank(t *tree, node *node) int {
 	}
 	if node.key == t.node.key {
 		return size(t.left) + 1
-	} else if node.source <= t.node.source {
+	} else if node.source < t.node.source {
 		return rank(t.left, node)
 	} else if t.right == nil {
 		return size(t.left) + 1

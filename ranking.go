@@ -14,6 +14,8 @@ func NewRanking() *Ranking {
 	return &Ranking{nodeMap: map[string]*node{}}
 }
 
+// Set 设置 key 对应的分数
+// 排名由大到小，得分相同情况下，最新更新的 key 排名更靠前
 func (r *Ranking) Set(key string, source float64) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
