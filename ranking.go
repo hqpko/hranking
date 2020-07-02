@@ -38,7 +38,7 @@ func (r *Ranking) Get(key string) int {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	if n := r.nodeMap[key]; n != nil {
-		return len(r.nodeMap) - rank(r.tree, n) + 1
+		return rank(r.tree, n)
 	}
 	return 0
 }

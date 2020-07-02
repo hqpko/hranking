@@ -57,13 +57,11 @@ func rank(t *tree, node *node) int {
 		return 0
 	}
 	if node.key == t.node.key {
-		return size(t.left) + 1
-	} else if node.score < t.node.score {
-		return rank(t.left, node)
-	} else if t.right == nil {
-		return size(t.left) + 1
+		return size(t.right) + 1
+	} else if node.score >= t.node.score {
+		return rank(t.right, node)
 	} else {
-		return size(t.left) + rank(t.right, node) + 1
+		return size(t.right) + rank(t.left, node) + 1
 	}
 }
 
