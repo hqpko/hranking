@@ -1,6 +1,8 @@
 package hrank
 
-import "sync"
+import (
+	"sync"
+)
 
 type Ranking struct {
 	lock    sync.RWMutex
@@ -29,11 +31,12 @@ func (r *Ranking) Set(key string, source float64) {
 	}
 }
 
+// 由大到小排序，最大元素的排序为 1
 func (r *Ranking) Get(key string) int {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	if n := r.nodeMap[key]; n != nil {
-		return rank(r.tree, n)
+		return len(r.nodeMap) - rank(r.tree, n) + 1
 	}
 	return 0
 }

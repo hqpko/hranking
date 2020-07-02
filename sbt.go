@@ -51,6 +51,7 @@ func del(t *tree, node *node) *tree {
 	return t
 }
 
+// 由小到大，从 1 开始，0 表示无排序
 func rank(t *tree, node *node) int {
 	if t == nil {
 		return 0
