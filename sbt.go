@@ -124,6 +124,20 @@ func getFirst(t *tree) *tree {
 	return t
 }
 
+func check(t *tree) bool {
+	if t.right != nil && (size(t.right.left) > size(t.left) || size(t.right.right) > size(t.left)) {
+		return false
+	} else if t.left != nil && (size(t.left.left) > size(t.right) || size(t.left.right) > size(t.right)) {
+		return false
+	} else if t.left != nil && !check(t.left) {
+		return false
+	} else if t.right != nil && !check(t.right) {
+		return false
+	} else {
+		return true
+	}
+}
+
 func size(t *tree) int {
 	if t == nil {
 		return 0
