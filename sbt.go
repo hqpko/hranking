@@ -146,6 +146,28 @@ func size(t *tree) int {
 	return t.size
 }
 
+func copyTree(t *tree) *tree {
+	if t == nil {
+		return nil
+	}
+	return &tree{
+		left:  copyTree(t.left),
+		right: copyTree(t.right),
+		size:  t.size,
+		node:  &node{key: t.node.key, score: t.node.score},
+	}
+}
+
+func walk(t *tree, index int, handler func(index int, key string, score float64)) int {
+	if t == nil {
+		return index
+	}
+	index = walk(t.right, index, handler)
+	handler(index, t.node.key, t.node.score)
+	index++
+	return walk(t.left, index, handler)
+}
+
 func (t *tree) print() {
 	t.debug("")
 }

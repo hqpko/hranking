@@ -46,6 +46,25 @@ func TestRanking_Set(t *testing.T) {
 	}
 }
 
+func TestRanking_Copy_Walk(t *testing.T) {
+	r := NewRanking()
+	count := 10 * 10000
+	nums := createNums(count)
+	for k, v := range nums {
+		r.Set(k, v)
+	}
+
+	r2 := r.Copy()
+	r2.Walk(func(index int, key string, score float64) {
+		if k2v(key) != int(score) {
+			t.Errorf("ranking copy fail, key:%s score:%.0f", key, score)
+		} else if index != count-int(score) {
+			t.Errorf("ranking copy fail, key:%s index:%d", key, index)
+		}
+	})
+}
+
+// map[i]i, ex: 1:1, 2:2
 func createNums(count int) map[string]float64 {
 	nums := map[string]float64{}
 	for i := 0; i < count; i++ {

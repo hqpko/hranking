@@ -42,3 +42,33 @@ func (r *Ranking) Get(key string) int {
 	}
 	return 0
 }
+
+func (r *Ranking) Len() int {
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	return len(r.nodeMap)
+}
+
+// index 从 1 开始
+func (r *Ranking) Walk(handler func(index int, key string, score float64)) {
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	walk(r.tree, 1, handler)
+}
+
+func (r *Ranking) Copy() *Ranking {
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	return &Ranking{
+		tree:    copyTree(r.tree),
+		nodeMap: copyMap(r.nodeMap),
+	}
+}
+
+func copyMap(m map[string]*node) map[string]*node {
+	m2 := map[string]*node{}
+	for k, v := range m {
+		m2[k] = &node{key: v.key, score: v.score}
+	}
+	return m2
+}
