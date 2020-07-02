@@ -1,4 +1,4 @@
-package hrank
+package hranking
 
 import (
 	"sync"
