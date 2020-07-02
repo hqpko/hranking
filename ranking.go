@@ -44,12 +44,12 @@ func (r *Ranking) Get(key string) int {
 }
 
 // 获取排名区间数据，返回区间内 key,score 集合，序号从 1 开始，如数据长度不足，则返回所有有效数据
-// [from,to), if to<=from, to=from+1
+// [from,to], if to<from, to=from
 func (r *Ranking) GetRange(from, to int) ([]string, []float64) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	if to <= from {
-		to = from + 1
+	if to < from {
+		to = from
 	}
 	return getRange(r.tree, from, to, []string{}, []float64{})
 }

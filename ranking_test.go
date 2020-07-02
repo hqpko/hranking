@@ -95,18 +95,17 @@ func TestRanking_GetRange(t *testing.T) {
 	for _, rang := range ranges {
 		from, to := rang.from, rang.to
 		keys, scores := r.GetRange(from, to)
-
 		// 获取实际长度 //
-		if to > r.Len()+1 {
-			to = r.Len() + 1
+		if to > r.Len() {
+			to = r.Len()
 		}
 		if from < 1 {
 			from = 1
 		}
-		if to <= from {
-			to = from + 1
+		if to < from {
+			to = from
 		}
-		size := to - from
+		size := to - from + 1
 		// /////////// //
 		if len(keys) != size {
 			t.Errorf("ranking get range fail, no enough data, should %d, but %d", size, len(keys))
