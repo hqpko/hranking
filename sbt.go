@@ -3,8 +3,8 @@ package hrank
 import "fmt"
 
 type node struct {
-	key    string
-	source float64
+	key   string
+	score float64
 }
 
 type tree struct {
@@ -17,13 +17,13 @@ type tree struct {
 func add(t *tree, node *node) *tree {
 	if t == nil {
 		return &tree{node: node, size: 1}
-	} else if node.source < t.node.source {
+	} else if node.score < t.node.score {
 		t.left = add(t.left, node)
 	} else {
 		t.right = add(t.right, node)
 	}
 	t.size++
-	t = maintain(t, node.source > t.node.source)
+	t = maintain(t, node.score > t.node.score)
 	return t
 }
 
@@ -40,7 +40,7 @@ func del(t *tree, node *node) *tree {
 			t.node, first.node = first.node, t.node
 			t.right = del(t.right, node)
 		}
-	} else if node.source <= t.node.source { // 注意此处是 <= 而不是 <，由于在插入时使用的是 < 导致相同 source 的节点在左边，此处需要使用 <= 来检查左方数据
+	} else if node.score <= t.node.score { // 注意此处是 <= 而不是 <，由于在插入时使用的是 < 导致相同 score 的节点在左边，此处需要使用 <= 来检查左方数据
 		t.left = del(t.left, node)
 		t = maintain(t, true)
 	} else {
@@ -58,7 +58,7 @@ func rank(t *tree, node *node) int {
 	}
 	if node.key == t.node.key {
 		return size(t.left) + 1
-	} else if node.source < t.node.source {
+	} else if node.score < t.node.score {
 		return rank(t.left, node)
 	} else if t.right == nil {
 		return size(t.left) + 1
@@ -154,7 +154,7 @@ func (t *tree) debug(pre string) {
 	if t == nil || t.node == nil {
 		return
 	}
-	fmt.Println(pre, t.node.key, t.node.source)
+	fmt.Println(pre, t.node.key, t.node.score)
 	pre += "-"
 	if t.left != nil {
 		fmt.Println("left:")

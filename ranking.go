@@ -16,18 +16,18 @@ func NewRanking() *Ranking {
 
 // Set 设置 key 对应的分数
 // 排名由大到小，得分相同情况下，最新更新的 key 排名更靠前
-func (r *Ranking) Set(key string, source float64) {
+func (r *Ranking) Set(key string, score float64) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	if n := r.nodeMap[key]; n != nil {
-		if n.source == source {
+		if n.score == score {
 			return
 		}
 		r.tree = del(r.tree, n)
-		n.source = source
+		n.score = score
 		r.tree = add(r.tree, n)
 	} else {
-		node := &node{key: key, source: source}
+		node := &node{key: key, score: score}
 		r.tree = add(r.tree, node)
 		r.nodeMap[key] = node
 	}
