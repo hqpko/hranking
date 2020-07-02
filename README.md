@@ -2,6 +2,8 @@
 
 基于 `Size Balanced Tree` 的排行榜，提供读写 `O(log n)` 的时间复杂度
 
+> 基本规则是：由大到小排序，且得分相同的情况下，最新更新的 key 排名更靠前
+
 ```go
 package main
 
