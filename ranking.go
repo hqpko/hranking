@@ -5,13 +5,13 @@ import (
 )
 
 type Ranking struct {
-	lock    sync.RWMutex
-	tree    *tree
-	nodeMap map[string]*node
+	lock     sync.RWMutex
+	tree     *tree
+	scoreMap map[string]float64
 }
 
 func NewRanking() *Ranking {
-	return &Ranking{nodeMap: map[string]*node{}}
+	return &Ranking{scoreMap: map[string]float64{}}
 }
 
 // Set 设置 key 对应的分数
@@ -19,17 +19,16 @@ func NewRanking() *Ranking {
 func (r *Ranking) Set(key string, score float64) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-	if n := r.nodeMap[key]; n != nil {
-		if n.score == score {
+	if oldScore, ok := r.scoreMap[key]; ok {
+		if oldScore == score {
 			return
 		}
-		r.tree = del(r.tree, n)
-		n.score = score
-		r.tree = add(r.tree, n)
+		r.tree = del(r.tree, key, oldScore)
+		r.scoreMap[key] = score
+		r.tree = add(r.tree, key, score)
 	} else {
-		node := &node{key: key, score: score}
-		r.tree = add(r.tree, node)
-		r.nodeMap[key] = node
+		r.tree = add(r.tree, key, score)
+		r.scoreMap[key] = score
 	}
 }
 
@@ -37,8 +36,8 @@ func (r *Ranking) Set(key string, score float64) {
 func (r *Ranking) Get(key string) int {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	if n := r.nodeMap[key]; n != nil {
-		return rank(r.tree, n)
+	if score, ok := r.scoreMap[key]; ok {
+		return rank(r.tree, key, score)
 	}
 	return 0
 }
@@ -60,7 +59,7 @@ func (r *Ranking) GetN(n int) (string, float64) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	if t := getN(r.tree, n); t != nil {
-		return t.node.key, t.node.score
+		return t.key, t.score
 	}
 	return "", 0
 }
@@ -68,7 +67,7 @@ func (r *Ranking) GetN(n int) (string, float64) {
 func (r *Ranking) Len() int {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	return len(r.nodeMap)
+	return len(r.scoreMap)
 }
 
 // index 从 1 开始
@@ -82,15 +81,15 @@ func (r *Ranking) Copy() *Ranking {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return &Ranking{
-		tree:    copyTree(r.tree),
-		nodeMap: copyMap(r.nodeMap),
+		tree:     copyTree(r.tree),
+		scoreMap: copyMap(r.scoreMap),
 	}
 }
 
-func copyMap(m map[string]*node) map[string]*node {
-	m2 := map[string]*node{}
+func copyMap(m map[string]float64) map[string]float64 {
+	m2 := map[string]float64{}
 	for k, v := range m {
-		m2[k] = &node{key: v.key, score: v.score}
+		m2[k] = v
 	}
 	return m2
 }

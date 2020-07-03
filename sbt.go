@@ -2,49 +2,45 @@ package hranking
 
 import "fmt"
 
-type node struct {
-	key   string
-	score float64
-}
-
 type tree struct {
 	left  *tree
 	right *tree
 	size  int
-	node  *node
+	key   string
+	score float64
 }
 
-func add(t *tree, node *node) *tree {
+func add(t *tree, key string, score float64) *tree {
 	if t == nil {
-		return &tree{node: node, size: 1}
-	} else if node.score < t.node.score {
-		t.left = add(t.left, node)
+		return &tree{key: key, score: score, size: 1}
+	} else if score < t.score {
+		t.left = add(t.left, key, score)
 	} else {
-		t.right = add(t.right, node)
+		t.right = add(t.right, key, score)
 	}
 	t.size++
-	t = maintain(t, node.score > t.node.score)
+	t = maintain(t, score > t.score)
 	return t
 }
 
-func del(t *tree, node *node) *tree {
+func del(t *tree, key string, score float64) *tree {
 	if t == nil {
 		return nil
-	} else if t.node.key == node.key {
+	} else if t.key == key {
 		if t.left == nil {
 			return t.right
 		} else if t.right == nil {
 			return t.left
 		} else {
 			first := getFirst(t.right)
-			t.node, first.node = first.node, t.node
-			t.right = del(t.right, node)
+			t.key, t.score, first.key, first.score = first.key, first.score, t.key, t.score
+			t.right = del(t.right, key, score)
 		}
-	} else if node.score <= t.node.score { // 注意此处是 <= 而不是 <，由于在插入时使用的是 < 导致相同 score 的节点在左边，此处需要使用 <= 来检查左方数据
-		t.left = del(t.left, node)
+	} else if score <= t.score { // 注意此处是 <= 而不是 <，由于在插入时使用的是 < 导致相同 score 的节点在左边，此处需要使用 <= 来检查左方数据
+		t.left = del(t.left, key, score)
 		t = maintain(t, true)
 	} else {
-		t.right = del(t.right, node)
+		t.right = del(t.right, key, score)
 		t = maintain(t, false)
 	}
 	t.size--
@@ -52,16 +48,16 @@ func del(t *tree, node *node) *tree {
 }
 
 // 由小到大，从 1 开始，0 表示无排序
-func rank(t *tree, node *node) int {
+func rank(t *tree, key string, score float64) int {
 	if t == nil {
 		return 0
 	}
-	if node.key == t.node.key {
+	if key == t.key {
 		return size(t.right) + 1
-	} else if node.score >= t.node.score {
-		return rank(t.right, node)
+	} else if score >= t.score {
+		return rank(t.right, key, score)
 	} else {
-		return size(t.right) + rank(t.left, node) + 1
+		return size(t.right) + rank(t.left, key, score) + 1
 	}
 }
 
@@ -152,7 +148,8 @@ func copyTree(t *tree) *tree {
 		left:  copyTree(t.left),
 		right: copyTree(t.right),
 		size:  t.size,
-		node:  &node{key: t.node.key, score: t.node.score},
+		key:   t.key,
+		score: t.score,
 	}
 }
 
@@ -161,7 +158,7 @@ func walk(t *tree, index int, handler func(index int, key string, score float64)
 		return index
 	}
 	index = walk(t.right, index, handler)
-	handler(index, t.node.key, t.node.score)
+	handler(index, t.key, t.score)
 	index++
 	return walk(t.left, index, handler)
 }
@@ -187,11 +184,11 @@ func getRange(t *tree, from, to int, keys []string, scores []float64) ([]string,
 		} else if from < tIndex {
 			keys, scores = getRange(t.right, from, to, keys, scores)
 			if to >= tIndex {
-				keys, scores = append(keys, t.node.key), append(scores, t.node.score)
+				keys, scores = append(keys, t.key), append(scores, t.score)
 				keys, scores = getRange(t.left, 1, to-tIndex, keys, scores)
 			}
 		} else {
-			keys, scores = append(keys, t.node.key), append(scores, t.node.score)
+			keys, scores = append(keys, t.key), append(scores, t.score)
 			if to > tIndex {
 				keys, scores = getRange(t.left, 1, to-tIndex, keys, scores)
 			}
@@ -205,10 +202,10 @@ func (t *tree) print() {
 }
 
 func (t *tree) debug(pre string) {
-	if t == nil || t.node == nil {
+	if t == nil {
 		return
 	}
-	fmt.Println(pre, t.node.key, t.node.score)
+	fmt.Println(pre, t.key, t.score)
 	pre += "-"
 	if t.left != nil {
 		fmt.Println("left:")
