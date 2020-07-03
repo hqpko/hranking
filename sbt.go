@@ -6,11 +6,11 @@ type tree struct {
 	left  *tree
 	right *tree
 	size  int
-	key   int64
+	key   string
 	score int64
 }
 
-func add(t *tree, key int64, score int64) *tree {
+func add(t *tree, key string, score int64) *tree {
 	if t == nil {
 		return &tree{key: key, score: score, size: 1}
 	} else if score < t.score {
@@ -23,7 +23,7 @@ func add(t *tree, key int64, score int64) *tree {
 	return t
 }
 
-func del(t *tree, key int64, score int64) *tree {
+func del(t *tree, key string, score int64) *tree {
 	if t == nil {
 		return nil
 	} else if t.key == key {
@@ -48,7 +48,7 @@ func del(t *tree, key int64, score int64) *tree {
 }
 
 // 由小到大，从 1 开始，0 表示无排序
-func rank(t *tree, key int64, score int64) int {
+func rank(t *tree, key string, score int64) int {
 	if t == nil {
 		return 0
 	}
@@ -153,7 +153,7 @@ func copyTree(t *tree) *tree {
 	}
 }
 
-func walk(t *tree, index int, handler func(index int, key int64, score int64)) int {
+func walk(t *tree, index int, handler func(index int, key string, score int64)) int {
 	if t == nil {
 		return index
 	}
@@ -177,7 +177,7 @@ func getN(t *tree, n int) *tree {
 }
 
 // from<=to, return [from,to]
-func getRange(t *tree, from, to int, keys []int64, scores []int64) ([]int64, []int64) {
+func getRange(t *tree, from, to int, keys []string, scores []int64) ([]string, []int64) {
 	if t != nil && from <= to && from <= t.size {
 		if tIndex := size(t.right) + 1; from > tIndex {
 			keys, scores = getRange(t.left, from-tIndex, to-tIndex, keys, scores)

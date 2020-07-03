@@ -25,9 +25,9 @@ func TestRanking(t *testing.T) {
 
 	startTime = time.Now()
 	for k := range nums {
-		should := count - int(k)
+		should := count - k2v(k)
 		if rank := r.Get(k); rank != should {
-			t.Errorf("ranking fail %d should %d, but %d", k, should, rank)
+			t.Errorf("ranking fail %s should %d, but %d", k, should, rank)
 		}
 	}
 	fmt.Printf("read useTime:%.2fs\n", time.Now().Sub(startTime).Seconds())
@@ -35,13 +35,13 @@ func TestRanking(t *testing.T) {
 
 func TestRanking_Set(t *testing.T) {
 	r := NewRanking()
-	r.Set(0, 0)
-	r.Set(1, 1)
-	r.Set(2, 2)
+	r.Set("0", 0)
+	r.Set("1", 1)
+	r.Set("2", 2)
 
 	// reset, 得分相同的情况下，最新更新的 key 排名更靠前
-	r.Set(1, 2)
-	if r.Get(1) != 1 {
+	r.Set("1", 2)
+	if r.Get("1") != 1 {
 		t.Errorf("ranking set fail")
 	}
 }
@@ -51,11 +51,11 @@ func TestRanking_Copy_Walk(t *testing.T) {
 	r := createRanking(count)
 
 	r2 := r.Copy()
-	r2.Walk(func(index int, key, score int64) {
-		if key != score {
-			t.Errorf("ranking copy fail, key:%d score:%d", key, score)
+	r2.Walk(func(index int, key string, score int64) {
+		if k2v(key) != int(score) {
+			t.Errorf("ranking copy fail, key:%s score:%d", key, score)
 		} else if index != count-int(score) {
-			t.Errorf("ranking copy fail, key:%d index:%d", key, index)
+			t.Errorf("ranking copy fail, key:%s index:%d", key, index)
 		}
 	})
 }
@@ -65,9 +65,9 @@ func TestRanking_GetN(t *testing.T) {
 	r := createRanking(count)
 
 	for i := 1; i < count+1; i++ {
-		k, v := int64(count-i), int64(count-i)
+		k, v := strconv.Itoa(count-i), int64(count-i)
 		if key, score := r.GetN(i); key != k && score != v {
-			t.Errorf("ranking getn fail, should be %d,%d, but %d,%d", k, v, key, score)
+			t.Errorf("ranking getn fail, should be %s,%d, but %s,%d", k, v, key, score)
 		}
 	}
 }
@@ -111,9 +111,9 @@ func TestRanking_GetRange(t *testing.T) {
 			t.Errorf("ranking get range fail, no enough data, should %d, but %d", size, len(keys))
 		}
 		for i, v := range keys {
-			key, score := int64(count-from), int64(count-from)
+			key, score := strconv.Itoa(count-from), int64(count-from)
 			if v != key || scores[i] != score {
-				t.Errorf("ranking get rank fail, should be %d,%df, but %d,%d", key, score, v, scores[i])
+				t.Errorf("ranking get rank fail, should be %s,%df, but %s,%d", key, score, v, scores[i])
 			}
 			from++
 		}
@@ -130,10 +130,10 @@ func createRanking(count int) *Ranking {
 }
 
 // map[i]i, ex: 1:1, 2:2
-func createNums(count int) map[int64]int64 {
-	nums := map[int64]int64{}
+func createNums(count int) map[string]int64 {
+	nums := map[string]int64{}
 	for i := 0; i < count; i++ {
-		nums[int64(i)] = int64(i)
+		nums[strconv.Itoa(i)] = int64(i)
 	}
 	return nums
 }
