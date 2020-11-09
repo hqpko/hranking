@@ -13,7 +13,7 @@ func TestRanking(t *testing.T) {
 	nums := createNums(count)
 	startTime := time.Now()
 	for k, v := range nums {
-		r.Set(k, v) // 乱序插入
+		r.Set(Key(k), Value(v)) // 乱序插入
 	}
 	fmt.Printf("write useTime:%.2fs\n", time.Now().Sub(startTime).Seconds())
 
@@ -51,8 +51,8 @@ func TestRanking_Copy_Walk(t *testing.T) {
 	r := createRanking(count)
 
 	r2 := r.Copy()
-	r2.Walk(func(index int, key, score int64) {
-		if key != score {
+	r2.Walk(func(index int, key Key, score Value) {
+		if int64(key) != int64(score) {
 			t.Errorf("ranking copy fail, key:%d score:%d", key, score)
 		} else if index != count-int(score) {
 			t.Errorf("ranking copy fail, key:%d index:%d", key, index)
@@ -65,7 +65,7 @@ func TestRanking_GetN(t *testing.T) {
 	r := createRanking(count)
 
 	for i := 1; i < count+1; i++ {
-		k, v := int64(count-i), int64(count-i)
+		k, v := Key(count-i), Value(count-i)
 		if key, score := r.GetN(i); key != k && score != v {
 			t.Errorf("ranking getn fail, should be %d,%d, but %d,%d", k, v, key, score)
 		}
@@ -111,7 +111,7 @@ func TestRanking_GetRange(t *testing.T) {
 			t.Errorf("ranking get range fail, no enough data, should %d, but %d", size, len(keys))
 		}
 		for i, v := range keys {
-			key, score := int64(count-from), int64(count-from)
+			key, score := Key(count-from), Value(count-from)
 			if v != key || scores[i] != score {
 				t.Errorf("ranking get rank fail, should be %d,%df, but %d,%d", key, score, v, scores[i])
 			}
@@ -130,10 +130,10 @@ func createRanking(count int) *Ranking {
 }
 
 // map[i]i, ex: 1:1, 2:2
-func createNums(count int) map[int64]int64 {
-	nums := map[int64]int64{}
+func createNums(count int) map[Key]Value {
+	nums := map[Key]Value{}
 	for i := 0; i < count; i++ {
-		nums[int64(i)] = int64(i)
+		nums[Key(i)] = Value(i)
 	}
 	return nums
 }

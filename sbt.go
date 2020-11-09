@@ -2,15 +2,18 @@ package hranking
 
 import "fmt"
 
+type Key int64
+type Value int64
+
 type tree struct {
 	left  *tree
 	right *tree
 	size  int
-	key   int64
-	score int64
+	key   Key
+	score Value
 }
 
-func add(t *tree, key, score int64) *tree {
+func add(t *tree, key Key, score Value) *tree {
 	if t == nil {
 		return &tree{key: key, score: score, size: 1}
 	} else if score < t.score {
@@ -23,7 +26,7 @@ func add(t *tree, key, score int64) *tree {
 	return t
 }
 
-func del(t *tree, key, score int64) *tree {
+func del(t *tree, key Key, score Value) *tree {
 	if t == nil {
 		return nil
 	} else if t.key == key {
@@ -48,7 +51,7 @@ func del(t *tree, key, score int64) *tree {
 }
 
 // 由小到大，从 1 开始，0 表示无排序
-func rank(t *tree, key, score int64) int {
+func rank(t *tree, key Key, score Value) int {
 	if t == nil {
 		return 0
 	}
@@ -153,7 +156,7 @@ func copyTree(t *tree) *tree {
 	}
 }
 
-func walk(t *tree, index int, handler func(index int, key, score int64)) int {
+func walk(t *tree, index int, handler func(index int, key Key, score Value)) int {
 	if t == nil {
 		return index
 	}
@@ -177,7 +180,7 @@ func getN(t *tree, n int) *tree {
 }
 
 // from<=to, return [from,to]
-func getRange(t *tree, from, to int, keys, scores []int64) ([]int64, []int64) {
+func getRange(t *tree, from, to int, keys []Key, scores []Value) ([]Key, []Value) {
 	if t != nil && from <= to && from <= t.size {
 		if tIndex := size(t.right) + 1; from > tIndex {
 			keys, scores = getRange(t.left, from-tIndex, to-tIndex, keys, scores)
